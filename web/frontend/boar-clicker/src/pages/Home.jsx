@@ -2,6 +2,7 @@ import { useReducer } from "react";
 
 import coin from "../assets/svg/coin.svg";
 import mainCharacter from "../assets/svg/main-character.svg";
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
     points: 500,
@@ -37,6 +38,7 @@ function reducer(state, action) {
 }
 
 function Home() {
+    const navigate = useNavigate();
     const [state, dispatch] = useReducer(reducer, initialState);
     const { points, pointsPerClick, clicks } = state;
 
@@ -65,6 +67,12 @@ function Home() {
             <div className="flex h-screen w-full max-w-xl flex-col bg-black font-bold text-white">
                 <div className="top-glow relative z-0 mt-4 flex-grow rounded-t-[48px] bg-[#f3ba2f]">
                     <div className="flex h-full flex-col items-center justify-center before:absolute before:bottom-0 before:left-0 before:right-0 before:top-[2px] before:-z-10 before:rounded-t-[46px] before:bg-[#1d2025]">
+                        <div
+                            className="absolute top-10 rounded-lg bg-gray-700 px-10 py-5"
+                            onClick={() => navigate("/page")}
+                        >
+                            Boar Jump
+                        </div>
                         <div className="mt-4 flex justify-center px-4">
                             <div className="flex items-center space-x-2 px-4 py-2">
                                 <img
@@ -99,7 +107,7 @@ function Home() {
             {clicks.map((click) => (
                 <div
                     key={click.id}
-                    className="animate-float pointer-events-none absolute text-5xl font-bold text-white opacity-0"
+                    className="pointer-events-none absolute animate-float text-5xl font-bold text-white opacity-0"
                     style={{
                         top: `${click.y - 42}px`,
                         left: `${click.x}px`,

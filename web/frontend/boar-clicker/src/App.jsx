@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home.jsx";
+import BoarJump from "./pages/BoarJump.jsx";
 
 const router = createBrowserRouter([
     {
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
             {
                 path: "/",
                 element: <Home />,
+            },
+            {
+                path: "/page",
+                element: <BoarJump />,
             },
         ],
     },
