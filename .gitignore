@@ -1,0 +1,83 @@
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+.DS_Store
+.env
+**/settings/local.py
+/staticfiles/*
+/back-end/media
+__pycache__/
+/.vscode/
+
+# coverage result
+.coverage
+/coverage/
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# data
+*.dump
+*.json
+
+# npm
+node_modules/
+npm-debug.log
+
+# Webpack
+/frontend/bundles/*
+/frontend/webpack_bundles/*
+/webpack-stats.json
+
+# General
+env/
+/venv/
+/env/
+/output/
+/cache/
+boilerplate.zip
+
+# Spritesmith
+spritesmith-generated/
+spritesmith.scss
+
+# templated email
+tmp_email/
+
+.direnv
+.envrc
+.env
+.tool-versions
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
