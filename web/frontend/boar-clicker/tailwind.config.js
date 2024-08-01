@@ -2,15 +2,27 @@
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
+        screens: {
+            xs: "376px",
+        },
         extend: {
-            keyframes: {
-                float: {
-                    "0%": { opacity: "1", transform: "translateY(0)" },
-                    "100%": { opacity: "0", transform: "translateY(-50px)" },
-                },
+            colors: {
+                primary: "#FF4C00",
+                "dark-grey": "#0d1117",
+                "rich-black": "#010409",
             },
-            animation: {
-                float: "float 1s ease-out",
+            backgroundImage: {
+                "navigation-background":
+                    "linear-gradient(to bottom, rgba(255, 76, 0, 0.31) 0%, rgba(1, 4, 9, 0.31) 100%)",
+            },
+            height: {
+                "6/10": "60%",
+            },
+            inset: {
+                "2/5": "40%",
+            },
+            translate: {
+                "2/5": "40%",
             },
         },
     },

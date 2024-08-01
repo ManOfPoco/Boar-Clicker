@@ -15,7 +15,7 @@ const router = createBrowserRouter([
                 element: <Home />,
             },
             {
-                path: "/page",
+                path: "/boar-jump",
                 element: <BoarJump />,
             },
         ],
