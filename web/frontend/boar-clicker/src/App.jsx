@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home.jsx";
 import BoarJump from "./pages/BoarJump.jsx";
+import Tasks from "./pages/Tasks.jsx";
+import Referral from "./pages/Referral.jsx";
 
 const router = createBrowserRouter([
     {
@@ -17,6 +19,14 @@ const router = createBrowserRouter([
             {
                 path: "/boar-jump",
                 element: <BoarJump />,
+            },
+            {
+                path: "/tasks",
+                element: <Tasks />,
+            },
+            {
+                path: "/referral",
+                element: <Referral />,
             },
         ],
     },
