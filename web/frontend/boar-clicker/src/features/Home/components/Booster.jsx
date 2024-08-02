@@ -1,6 +1,6 @@
 function Booster({ img, alt, points }) {
     return (
-        <div className="flex flex-col items-center gap-1 px-2 py-3 w-full border border-primary">
+        <div className="flex w-full flex-col items-center gap-1 border border-primary px-2 py-3">
             <img
                 src={img}
                 alt={alt}

@@ -1,69 +1,20 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import BoostersMenu from "../features/Home/components/BoostersMenu";
+import ClickAnimations from "../features/Home/components/ClickAnimations";
 import NavigationMenu from "../layouts/NavigationMenu";
+
+import useGameContext from "../hooks/useGameContext";
+import useConvertSystem from "../hooks/useConvertSystem";
 
 import coinIcon from "../assets/svg/coin.svg";
 import mainCharacterIcon from "../assets/svg/main-character.svg";
 import energyIcon from "../assets/svg/energy.svg";
-import ClickAnimations from "../features/Home/components/ClickAnimations";
-
-const initialState = {
-    points: 500,
-    energy: 100,
-    pointsPerClick: 1,
-    clicks: [],
-};
-
-function reducer(state, action) {
-    switch (action.type) {
-        case "addClick":
-            if (state.energy === 0) return state;
-            return {
-                ...state,
-                energy: state.energy - 1,
-                clicks: [
-                    ...state.clicks,
-                    {
-                        id: action.payload.id,
-                        x: action.payload.x,
-                        y: action.payload.y,
-                        translateX: action.payload.translateX,
-                        translateY: action.payload.translateY,
-                    },
-                ],
-            };
-        case "increasePoints":
-            return {
-                ...state,
-                points: state.points + state.pointsPerClick,
-                clicks: state.clicks.filter(
-                    (click) => click.id !== action.payload.id
-                ),
-            };
-        case "restoreEnergy":
-            if (state.energy < 100) {
-                return {
-                    ...state,
-                    energy: state.energy + 1,
-                };
-            }
-            return state;
-        case "increasePointsPerClick":
-            return {
-                ...state,
-                pointsPerClick:
-                    state.pointsPerClick + action.payload.pointsPerClick,
-                points: state.points - action.payload.pointsCost,
-            };
-        default:
-            return state;
-    }
-}
 
 function Home() {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const { state, dispatch } = useGameContext();
     const { points, energy, pointsPerClick, clicks } = state;
+    const { convertToViewSystem } = useConvertSystem();
 
     const pointsRef = useRef(null);
 
@@ -113,7 +64,7 @@ function Home() {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [clicks]);
+    }, [clicks, dispatch]);
 
     return (
         <div className="relative flex justify-center overflow-hidden bg-rich-black">
@@ -148,7 +99,7 @@ function Home() {
                             />
 
                             <span className="text-4xl text-white">
-                                {points}
+                                {convertToViewSystem(points)}
                             </span>
                         </div>
                     </div>
