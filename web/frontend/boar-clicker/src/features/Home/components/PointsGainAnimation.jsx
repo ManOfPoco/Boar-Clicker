@@ -1,6 +1,14 @@
 import coinIcon from "../../../assets/svg/coin.svg";
 
-function ClickAnimations({ clicks, pointsPerClick, handleMagnetAnimationEnd }) {
+function PointsGainAnimation({ clicks, dispatch }) {
+    // Increase points when magnet animation ends
+    function handleMagnetAnimationEnd(id, points) {
+        dispatch({
+            type: "increasePoints",
+            payload: { id, points: points },
+        });
+    }
+
     return (
         <>
             {clicks.map((click) => (
@@ -14,7 +22,9 @@ function ClickAnimations({ clicks, pointsPerClick, handleMagnetAnimationEnd }) {
                         "--translate-x": `${click.translateX}px`,
                         "--translate-y": `${click.translateY}px`,
                     }}
-                    onAnimationEnd={() => handleMagnetAnimationEnd(click.id)}
+                    onAnimationEnd={() =>
+                        handleMagnetAnimationEnd(click.id, click.points)
+                    }
                 >
                     <div className="flex">
                         <img
@@ -23,7 +33,7 @@ function ClickAnimations({ clicks, pointsPerClick, handleMagnetAnimationEnd }) {
                             className="h-10 w-10"
                             draggable="false"
                         />
-                        {pointsPerClick}
+                        {click.points}
                     </div>
                 </div>
             ))}
@@ -31,4 +41,4 @@ function ClickAnimations({ clicks, pointsPerClick, handleMagnetAnimationEnd }) {
     );
 }
 
-export default ClickAnimations;
+export default PointsGainAnimation;

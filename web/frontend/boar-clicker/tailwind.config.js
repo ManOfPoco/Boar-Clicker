@@ -10,6 +10,8 @@ export default {
                 primary: "#FF4C00",
                 "dark-grey": "#0d1117",
                 "rich-black": "#010409",
+                gray: "#8b949e",
+                "onyx": "#3C4046",
             },
             backgroundImage: {
                 "navigation-background":
@@ -20,12 +22,16 @@ export default {
             },
             inset: {
                 "2/5": "40%",
+                tasks: "calc(75% - 64px)",
             },
             translate: {
                 "2/5": "40%",
             },
             boxShadow: {
                 glow: "0 -20px 20px rgba(243, 186, 47, 0.3), 0 20px 20px rgba(243, 186, 47, 0.3), 20px 0 20px rgba(243, 186, 47, 0.3), -20px 0 20px rgba(243, 186, 47, 0.3)",
+            },
+            maxHeight: {
+                "3/4": "75%",
             },
             keyframes: {
                 "fade-in": {
@@ -48,8 +54,8 @@ export default {
                     "100%": { transform: "translateY(-50%)" },
                 },
                 slideOut: {
-                    "0%": { transform: "translateY(calc(-50% - 192px))" },
-                    "100%": { transform: "translateY(0)" },
+                    "0%": { transform: "translateY(-100%)" },
+                    "100%": { transform: "translateY(0px)" },
                 },
             },
             animation: {

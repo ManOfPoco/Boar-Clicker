@@ -8,6 +8,8 @@ import Home from "./pages/Home.jsx";
 import BoarJump from "./pages/BoarJump.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import Referral from "./pages/Referral.jsx";
+import Upgrades from "./pages/Upgrades.jsx";
+import Boosters from "./pages/Boosters.jsx";
 
 const router = createBrowserRouter([
     {
@@ -18,8 +20,12 @@ const router = createBrowserRouter([
                 element: <Home />,
             },
             {
-                path: "/boar-jump",
-                element: <BoarJump />,
+                path: "/upgrades",
+                element: <Upgrades />,
+            },
+            {
+                path: "/boosters",
+                element: <Boosters />,
             },
             {
                 path: "/tasks",
@@ -28,6 +34,10 @@ const router = createBrowserRouter([
             {
                 path: "/referral",
                 element: <Referral />,
+            },
+            {
+                path: "/boar-jump",
+                element: <BoarJump />,
             },
         ],
     },

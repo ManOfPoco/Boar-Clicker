@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
+import { NavLink } from "react-router-dom";
 
-import BoostersMenu from "../features/Home/components/BoostersMenu";
-import ClickAnimations from "../features/Home/components/ClickAnimations";
+import PointsGainAnimation from "../features/Home/components/PointsGainAnimation";
 import NavigationMenu from "../layouts/NavigationMenu";
 
 import useGameContext from "../hooks/useGameContext";
@@ -10,10 +10,22 @@ import useConvertSystem from "../hooks/useConvertSystem";
 import coinIcon from "../assets/svg/coin.svg";
 import mainCharacterIcon from "../assets/svg/main-character.svg";
 import energyIcon from "../assets/svg/energy.svg";
+import upgrades from "../assets/svg/upgrades.svg";
+import boosters from "../assets/svg/boosters.svg";
 
 function Home() {
-    const { state, dispatch } = useGameContext();
-    const { points, energy, pointsPerClick, clicks } = state;
+    const {
+        state: {
+            points,
+            energy,
+            pointsPerClick,
+            clicks,
+            level,
+            levelExperience,
+        },
+        dispatch,
+    } = useGameContext();
+
     const { convertToViewSystem } = useConvertSystem();
 
     const pointsRef = useRef(null);
@@ -31,6 +43,7 @@ function Home() {
 
         let click = {
             id: Date.now(),
+            points: pointsPerClick,
             x: e.pageX,
             y: e.pageY,
         };
@@ -50,38 +63,42 @@ function Home() {
         });
     }
 
-    // Increase points when magnet animation ends
-    function handleMagnetAnimationEnd(id) {
-        dispatch({ type: "increasePoints", payload: { id } });
-    }
-
-    // Restore energy every second
     useEffect(() => {
-        const interval = setInterval(() => {
-            dispatch({
-                type: "restoreEnergy",
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [clicks, dispatch]);
+        dispatch({ type: "cleanClicks" });
+    }, [dispatch]);
 
     return (
         <div className="relative flex justify-center overflow-hidden bg-rich-black">
             <div className="relative flex h-dvh w-full max-w-xl flex-col bg-dark-grey font-bold">
                 <NavigationMenu />
-                <BoostersMenu />
 
-                <div className="flex gap-1 ps-3 pt-3 text-2xl text-primary">
-                    <span>Energy:</span>
-                    <div className="flex">
-                        <img
-                            src={energyIcon}
-                            alt="Energy"
-                            className="h-8 w-8"
-                            draggable="false"
-                        />
-                        <span>{energy}</span>
+                <div className="flex items-center justify-between px-3 pt-3">
+                    <div className="flex gap-1 text-lg text-primary">
+                        <h3>Energy:</h3>
+                        <div className="flex">
+                            <img
+                                src={energyIcon}
+                                alt="Energy"
+                                className="h-8 w-8"
+                                draggable="false"
+                            />
+                            <span>{energy}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex w-44 flex-col text-lg">
+                        <div className="flex w-full justify-between text-primary">
+                            <h3>Level</h3>
+                            <span>{level}</span>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-white/30">
+                            <div
+                                style={{
+                                    width: `${(levelExperience / (level * 3000)) * 100}%`,
+                                }}
+                                className="h-full rounded-full bg-primary transition-all duration-500"
+                            ></div>
+                        </div>
                     </div>
                 </div>
 
@@ -118,13 +135,34 @@ function Home() {
                         />
                     </div>
                 </div>
+
+                <div className="absolute bottom-0 flex w-full justify-between px-3 pb-3">
+                    <NavLink
+                        className="flex items-center gap-2.5 text-xl text-white"
+                        to="/upgrades"
+                    >
+                        <img
+                            src={upgrades}
+                            alt="Dollar Coin"
+                            className="h-8 w-8"
+                        />
+                        <span>Upgrades</span>
+                    </NavLink>
+                    <NavLink
+                        className="flex items-center gap-2.5 text-xl text-white"
+                        to="/boosters"
+                    >
+                        <img
+                            src={boosters}
+                            alt="Dollar Coin"
+                            className="h-8 w-8"
+                        />
+                        <span>Boosters</span>
+                    </NavLink>
+                </div>
             </div>
 
-            <ClickAnimations
-                clicks={clicks}
-                pointsPerClick={pointsPerClick}
-                handleMagnetAnimationEnd={handleMagnetAnimationEnd}
-            />
+            <PointsGainAnimation clicks={clicks} dispatch={dispatch} />
         </div>
     );
 }

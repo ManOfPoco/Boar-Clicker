@@ -1,37 +1,70 @@
-import Button from "../../../components/Button";
 import Task from "./Task";
 
-function TasksList({ isTaskMenuOpen, setIsTaskMenuOpen }) {
+import youtube from "../../../assets/svg/youtube.svg";
+import telegram from "../../../assets/svg/telegram.svg";
+
+const tasks = [
+    {
+        title: "Subscribe to our channelSubscribe to our channel",
+        reward: 250,
+        img: youtube,
+    },
+    {
+        title: "Join our Telegram group",
+        reward: 500,
+        img: telegram,
+    },
+    {
+        title: "Watch our latest video",
+        reward: 300,
+        img: youtube,
+    },
+    {
+        title: "Subscribe to our channel",
+        reward: 250,
+        img: youtube,
+    },
+    {
+        title: "Join our Telegram group",
+        reward: 500,
+        img: telegram,
+    },
+    {
+        title: "Watch our latest video",
+        reward: 300,
+        img: youtube,
+    },
+    {
+        title: "Subscribe to our channel",
+        reward: 250,
+        img: youtube,
+    },
+    {
+        title: "Join our Telegram group",
+        reward: 500,
+        img: telegram,
+    },
+    {
+        title: "Watch our latest video",
+        reward: 300,
+        img: youtube,
+    },
+];
+
+function TasksList() {
     return (
-        <div
-            className={`absolute mx-3 flex w-[calc(100%-24px)] rounded-xl border-2 border-primary transition-transform duration-500 ${
-                isTaskMenuOpen
-                    ? "animate-slideIn top-1/2 translate-y-1/2"
-                    : "animate-slideOut -bottom-80"
-            }`}
-        >
-            <Button
-                className="absolute -top-20 left-1/2 size-28 -translate-x-1/2 rounded-full bg-white"
-                onClick={() =>
-                    setIsTaskMenuOpen((isTaskMenuOpen) => !isTaskMenuOpen)
-                }
-            />
-            <div className="shadow-glow flex h-96 w-full flex-col gap-5 overflow-hidden rounded-xl px-2 py-3">
-                <Task
-                    title="Task 1"
-                    description="Description 1"
-                    status="Status 1"
-                />
-                <Task
-                    title="Task 2"
-                    description="Description 2"
-                    status="Status 2"
-                />
-                <Task
-                    title="Task 3"
-                    description="Description 3"
-                    status="Status 3"
-                />
+        <div className="flex h-full w-full flex-col overflow-hidden rounded-xl px-4 py-5 text-white shadow-glow">
+            <h3 className="flex gap-1 text-3xl">
+                Tasks <span className="text-lg">{tasks.length}</span>
+            </h3>
+            <span className="mb-5 mt-3 text-sm text-white/70">
+                We’ll reward you immediately with coins after each task
+                completion.
+            </span>
+            <div className="flex flex-col divide-y divide-white/20 h-full overflow-auto">
+                {tasks.map((task, index) => (
+                    <Task key={index} task={task} />
+                ))}
             </div>
         </div>
     );
