@@ -1,13 +1,11 @@
 import { useEffect, useRef } from "react";
 
-import GetFreePoints from "../features/Upgrades/components/GetFreePoints";
 import PointsGainAnimation from "../features/Home/components/PointsGainAnimation";
 
 import useConvertSystem from "../hooks/useConvertSystem";
 import useGameContext from "../hooks/useGameContext";
 
 import coinIcon from "../assets/svg/coin.svg";
-import GetFreeEnergyRefill from "../features/Upgrades/components/GetFreeEnergyRefill";
 
 function Upgrades() {
     const {
@@ -45,11 +43,10 @@ function Upgrades() {
                 </div>
 
                 <div className="mt-5 flex w-full flex-col gap-3 px-3">
-                    <h3 className="text-white text-xl">Free daily boosters</h3>
+                    <h3 className="text-xl text-white">Free daily boosters</h3>
 
                     <div className="flex w-full flex-col gap-2">
-                        <GetFreePoints ref={pointsRef} />
-                        <GetFreeEnergyRefill />
+                        {/* UPGRADES */}
                     </div>
                 </div>
             </div>

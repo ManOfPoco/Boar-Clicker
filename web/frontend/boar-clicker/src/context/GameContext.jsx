@@ -5,7 +5,6 @@ const initialState = {
     pointsPerClick: 1,
     energy: 750,
     maxEnergy: 750,
-    energyRefillInterval: 1000,
     energyRefillAmount: 1,
     level: 1,
     levelExperience: 0,
@@ -110,8 +109,7 @@ const GameContext = createContext();
 
 function GameProvider({ children }) {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const { level, levelExperience, energyRefillAmount, energyRefillInterval } =
-        state;
+    const { level, levelExperience, energyRefillAmount } = state;
 
     // Restore energy every second
     useEffect(() => {
@@ -120,10 +118,10 @@ function GameProvider({ children }) {
                 type: "restoreEnergy",
                 energy: energyRefillAmount,
             });
-        }, energyRefillInterval);
+        }, 1000);
 
         return () => clearInterval(interval);
-    }, [energyRefillAmount, energyRefillInterval]);
+    }, [energyRefillAmount]);
 
     // Increase level when there's enough experience
     useEffect(() => {
