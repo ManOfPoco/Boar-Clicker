@@ -7,21 +7,27 @@ import NavigationMenu from "../layouts/NavigationMenu";
 import useGameContext from "../hooks/useGameContext";
 import useConvertSystem from "../hooks/useConvertSystem";
 
+import { calculatePointsPerClick } from "../utils/calculatePointsPerClick.js";
+import { calculateClicksQuantity } from "../utils/calculateClicksQuantity.js";
+
 import coinIcon from "../assets/svg/coin.svg";
 import mainCharacterIcon from "../assets/svg/main-character.svg";
 import energyIcon from "../assets/svg/energy.svg";
 import upgrades from "../assets/svg/upgrades.svg";
-import boosters from "../assets/svg/boosters.svg";
+import boostersSvg from "../assets/svg/boosters.svg";
 
 function Home() {
     const {
         state: {
             points,
             energy,
+            maxEnergy,
             pointsPerClick,
             clicks,
             level,
-            levelExperience,
+            experience,
+            nextLevelExperience,
+            boosters,
         },
         dispatch,
     } = useGameContext();
@@ -29,6 +35,7 @@ function Home() {
     const { convertToViewSystem } = useConvertSystem();
 
     const pointsRef = useRef(null);
+    const mainCharacterRef = useRef(null);
 
     // Handle card click
     function handleCardClick(e) {
@@ -41,27 +48,95 @@ function Home() {
             card.style.transform = "";
         }, 100);
 
-        let click = {
-            id: Date.now(),
-            points: pointsPerClick,
-            x: e.pageX,
-            y: e.pageY,
-        };
-        const pointsRect = pointsRef.current.getBoundingClientRect();
-        const translateX = pointsRect.left - click.x;
-        const translateY = pointsRect.top - click.y;
-
-        click = {
-            ...click,
-            translateX,
-            translateY,
-        };
-
-        dispatch({
-            type: "addClick",
-            payload: click,
+        const points = calculatePointsPerClick({
+            pointsPerClick,
+            level,
+            boosters,
         });
+        let clicksQuantity = calculateClicksQuantity({
+            boosters,
+        });
+
+        clicksQuantity = Math.max(clicksQuantity, 1);
+        const delay = 25;
+
+        for (let i = 0; i < clicksQuantity; i++) {
+            setTimeout(() => {
+                const clickX = e.pageX + (Math.random() - 0.5) * 20;
+                const clickY = e.pageY + (Math.random() - 0.5) * 20;
+
+                const pointsRect = pointsRef.current.getBoundingClientRect();
+                const translateX = pointsRect.left - clickX;
+                const translateY = pointsRect.top - clickY;
+
+                dispatch({
+                    type: "addClick",
+                    payload: {
+                        click: {
+                            id: Date.now(),
+                            points: points,
+                            x: clickX,
+                            y: clickY,
+                            translateX,
+                            translateY,
+                        },
+                        consumeEnergy: i % 2 === 0,
+                    },
+                });
+            }, i * delay);
+        }
     }
+
+    useEffect(() => {
+        const autoClickerBooster = boosters.find(
+            (booster) => booster.type === "auto_clicker"
+        );
+
+        if (!autoClickerBooster) return;
+
+        let clicksQuantity = Math.max(autoClickerBooster.baseEffect, 1); // Calculate clicks quantity
+        const remainingTime = autoClickerBooster.endTime - Date.now(); // Calculate remaining time
+
+        if (remainingTime <= 0) return; // If the booster has expired, do nothing
+
+        const card = mainCharacterRef.current;
+        const rect = card.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+
+        const points = calculatePointsPerClick({
+            pointsPerClick,
+            level,
+            boosters,
+        });
+
+        const intervalId = setInterval(() => {
+            for (let i = 0; i < clicksQuantity; i++) {
+                const clickX = x + (Math.random() - 0.5) * 20;
+                const clickY = y + (Math.random() - 0.5) * 20;
+
+                const pointsRect = pointsRef.current.getBoundingClientRect();
+                const translateX = pointsRect.left - clickX;
+                const translateY = pointsRect.top - clickY;
+
+                dispatch({
+                    type: "addClick",
+                    payload: {
+                        click: {
+                            x: clickX,
+                            y: clickY,
+                            points: points,
+                            translateX,
+                            translateY,
+                        },
+                        consumeEnergy: false,
+                    },
+                });
+            }
+        }, 1000);
+
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    }, [boosters, level, pointsPerClick, dispatch]);
 
     useEffect(() => {
         dispatch({ type: "cleanClicks" });
@@ -82,7 +157,9 @@ function Home() {
                                 className="h-8 w-8"
                                 draggable="false"
                             />
-                            <span>{energy}</span>
+                            <span>
+                                {energy} / {maxEnergy}
+                            </span>
                         </div>
                     </div>
 
@@ -91,10 +168,10 @@ function Home() {
                             <h3>Level</h3>
                             <span>{level}</span>
                         </div>
-                        <div className="h-2 w-full rounded-full bg-white/30">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-white/30">
                             <div
                                 style={{
-                                    width: `${(levelExperience / (level * 3000)) * 100}%`,
+                                    width: `${(experience / nextLevelExperience) * 100}%`,
                                 }}
                                 className="h-full rounded-full bg-primary transition-all duration-500"
                             ></div>
@@ -126,6 +203,7 @@ function Home() {
                     <div
                         className="flex select-none justify-center"
                         onClick={(e) => handleCardClick(e)}
+                        ref={mainCharacterRef}
                     >
                         <img
                             src={mainCharacterIcon}
@@ -153,7 +231,7 @@ function Home() {
                         to="/boosters"
                     >
                         <img
-                            src={boosters}
+                            src={boostersSvg}
                             alt="Dollar Coin"
                             className="h-8 w-8"
                         />

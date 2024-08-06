@@ -1,25 +1,37 @@
 import { forwardRef } from "react";
-import { createPointsAnimation } from "../../../utils/createPointsAnimation";
+import { createPointsAnimation } from "../../../utils/createPointsAnimation.js";
 
 import Booster from "./Booster";
 
 import useConvertSystem from "../../../hooks/useConvertSystem";
 import useGameContext from "../../../hooks/useGameContext";
 
-
 import coinIcon from "../../../assets/svg/coin.svg";
 
-const GetFreePoints = forwardRef(function GetFreePoints(
-    { ...props },
-    pointsRef
-) {
+const FreePoints = forwardRef(function FreePoints({ booster }, pointsRef) {
     const {
-        state: { pointsPerClick, level, isEveryDayMoneyCollected },
+        state: { pointsPerClick, level },
         dispatch,
     } = useGameContext();
     const { convertToViewSystem } = useConvertSystem();
 
-    const pointsQuantity = level * pointsPerClick * 1000;
+    const {
+        type,
+        title,
+        description,
+        levelRequirement,
+        baseEffect,
+        scalingFactor,
+        upgrades,
+        price,
+        cooldown,
+        uses,
+        maxUses,
+        lastUsed,
+        endTime,
+    } = booster;
+
+    const pointsQuantity = baseEffect * scalingFactor * pointsPerClick * level;
 
     function handleClick(e) {
         createPointsAnimation({
@@ -28,23 +40,22 @@ const GetFreePoints = forwardRef(function GetFreePoints(
             pointsQuantity,
             dispatch,
         });
-        dispatch({ type: "collectEveryDayMoney" });
     }
 
     return (
         <Booster
             className={
-                isEveryDayMoneyCollected
+                uses === maxUses
                     ? "pointer-events-none cursor-not-allowed bg-onyx/50"
                     : "cursor-pointer bg-onyx"
             }
             handleClick={handleClick}
             icon={coinIcon}
-            title="Energy drink"
+            title={title}
             subtitle={`${convertToViewSystem(pointsQuantity)} coins`}
             subtitleIcon={coinIcon}
         />
     );
 });
 
-export default GetFreePoints;
+export default FreePoints;
