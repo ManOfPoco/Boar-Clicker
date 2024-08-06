@@ -30,12 +30,14 @@ function Home() {
             boosters,
         },
         dispatch,
+        handleAutoClicker,
     } = useGameContext();
 
     const { convertToViewSystem } = useConvertSystem();
 
     const pointsRef = useRef(null);
     const mainCharacterRef = useRef(null);
+    const isFirstRenderRef = useRef(true);
 
     // Handle card click
     function handleCardClick(e) {
@@ -88,55 +90,14 @@ function Home() {
     }
 
     useEffect(() => {
-        const autoClickerBooster = boosters.find(
-            (booster) => booster.type === "auto_clicker"
-        );
+        if (isFirstRenderRef.current) {
+            isFirstRenderRef.current = false;
+            return;
+        }
 
-        if (!autoClickerBooster) return;
-
-        let clicksQuantity = Math.max(autoClickerBooster.baseEffect, 1); // Calculate clicks quantity
-        const remainingTime = autoClickerBooster.endTime - Date.now(); // Calculate remaining time
-
-        if (remainingTime <= 0) return; // If the booster has expired, do nothing
-
-        const card = mainCharacterRef.current;
-        const rect = card.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-
-        const points = calculatePointsPerClick({
-            pointsPerClick,
-            level,
-            boosters,
-        });
-
-        const intervalId = setInterval(() => {
-            for (let i = 0; i < clicksQuantity; i++) {
-                const clickX = x + (Math.random() - 0.5) * 20;
-                const clickY = y + (Math.random() - 0.5) * 20;
-
-                const pointsRect = pointsRef.current.getBoundingClientRect();
-                const translateX = pointsRect.left - clickX;
-                const translateY = pointsRect.top - clickY;
-
-                dispatch({
-                    type: "addClick",
-                    payload: {
-                        click: {
-                            x: clickX,
-                            y: clickY,
-                            points: points,
-                            translateX,
-                            translateY,
-                        },
-                        consumeEnergy: false,
-                    },
-                });
-            }
-        }, 1000);
-
-        return () => clearInterval(intervalId); // Cleanup interval on component unmount
-    }, [boosters, level, pointsPerClick, dispatch]);
+        const cleanup = handleAutoClicker({ mainCharacterRef, pointsRef });
+        return cleanup;
+    }, [handleAutoClicker, mainCharacterRef, pointsRef]);
 
     useEffect(() => {
         dispatch({ type: "cleanClicks" });

@@ -256,7 +256,7 @@ const BoostersList = [
         description: "Get a mystery box. It can be anything 🕵️‍♂️",
         levelRequirement: 1,
         currentLevel: 1,
-        baseEffect: "random",
+        baseEffect: 1, // 1 box per use
         scalingFactor: 0,
         upgrades: [],
         price: 500,
@@ -297,10 +297,21 @@ function Boosters() {
     const {
         state: { points, clicks },
         dispatch,
+        handleAutoClicker,
     } = useGameContext();
     const { convertToViewSystem } = useConvertSystem();
 
     const pointsRef = useRef(null);
+    const isFirstRenderRef = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRenderRef.current) {
+            isFirstRenderRef.current = false;
+            return;
+        }
+        const cleanup = handleAutoClicker({});
+        return cleanup;
+    }, [handleAutoClicker]);
 
     useEffect(() => {
         dispatch({ type: "cleanClicks" });

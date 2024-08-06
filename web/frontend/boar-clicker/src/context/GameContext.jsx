@@ -1,4 +1,6 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useCallback, useEffect, useReducer } from "react";
+
+import { calculatePointsPerClick } from "../utils/calculatePointsPerClick.js";
 
 function calculateTotalExperienceForLevel(n) {
     if (n <= 0) {
@@ -165,6 +167,7 @@ const GameContext = createContext();
 function GameProvider({ children }) {
     const [state, dispatch] = useReducer(reducer, initialState);
     const {
+        pointsPerClick,
         level,
         experience,
         energyRefillPerTick,
@@ -172,33 +175,82 @@ function GameProvider({ children }) {
         boosters,
     } = state;
 
-    // useEffect(() => {
-    //     const autoClickerBooster = boosters.find(
-    //         (booster) => booster.type === "auto_clicker"
-    //     );
-    //     console.log(autoClickerBooster);
-    //     if (!autoClickerBooster) return;
+    // Handle auto clicker
+    const handleAutoClicker = useCallback(
+        ({ mainCharacterRef = null, pointsRef = null }) => {
+            const autoClickerBooster = boosters.find(
+                (booster) => booster.type === "auto_clicker"
+            );
 
-    //     let clicksQuantity =
-    //         autoClickerBooster.baseEffect *
-    //         autoClickerBooster.usesScaling *
-    //         autoClickerBooster.levelScaling;
-    //     const remainingTime = autoClickerBooster.endTime - Date.now(); // Calculate remaining time
+            if (!autoClickerBooster) return;
 
-    //     if (remainingTime <= 0) return; // If the booster has expired, do nothing
+            let clicksQuantity = Math.max(autoClickerBooster.baseEffect, 1);
+            const endTime = autoClickerBooster.endTime;
+            const points = calculatePointsPerClick({
+                pointsPerClick: pointsPerClick,
+                level: level,
+                boosters: boosters,
+            });
 
-    //     const intervalId = setInterval(() => {
-    //         for (let i = 0; i < clicksQuantity; i++) {
-    //             console.log("Auto click");
-    //             dispatch({
-    //                 type: "addClick",
-    //                 payload: { consumeEnergy: false },
-    //             });
-    //         }
-    //     }, remainingTime);
+            let timeoutId;
 
-    //     return () => clearInterval(intervalId); // Cleanup interval on component unmount
-    // }, [boosters, dispatch]);
+            const executeClicks = () => {
+                const remainingTime = endTime - Date.now();
+
+                if (remainingTime <= 0) {
+                    return;
+                }
+
+                for (let i = 0; i < clicksQuantity; i++) {
+                    if (mainCharacterRef && pointsRef) {
+                        const card = mainCharacterRef.current;
+                        const pointsElement = pointsRef.current;
+
+                        if (card && pointsElement) {
+                            const rect = card.getBoundingClientRect();
+                            const x = rect.left + rect.width / 2;
+                            const y = rect.top + rect.height / 2;
+
+                            const clickX = x + (Math.random() - 0.5) * 20;
+                            const clickY = y + (Math.random() - 0.5) * 20;
+
+                            const pointsRect =
+                                pointsElement.getBoundingClientRect();
+                            const translateX = pointsRect.left - clickX;
+                            const translateY = pointsRect.top - clickY;
+
+                            dispatch({
+                                type: "addClick",
+                                payload: {
+                                    click: {
+                                        id: Date.now(),
+                                        points: points,
+                                        x: clickX,
+                                        y: clickY,
+                                        translateX: translateX,
+                                        translateY: translateY,
+                                    },
+                                    consumeEnergy: false,
+                                },
+                            });
+                        }
+                    } else {
+                        dispatch({
+                            type: "increasePoints",
+                            payload: { points: points },
+                        });
+                    }
+                }
+
+                timeoutId = setTimeout(executeClicks, 1000);
+            };
+
+            executeClicks();
+
+            return () => clearTimeout(timeoutId);
+        },
+        [boosters, pointsPerClick, level]
+    );
 
     // Increase level when there's enough experience
     useEffect(() => {
@@ -248,7 +300,7 @@ function GameProvider({ children }) {
     }, [boosters]);
 
     return (
-        <GameContext.Provider value={{ state, dispatch }}>
+        <GameContext.Provider value={{ state, dispatch, handleAutoClicker }}>
             {children}
         </GameContext.Provider>
     );

@@ -11,10 +11,16 @@ function Upgrades() {
     const {
         state: { points, clicks },
         dispatch,
+        handleAutoClicker,
     } = useGameContext();
     const { convertToViewSystem } = useConvertSystem();
 
     const pointsRef = useRef(null);
+
+    useEffect(() => {
+        const cleanup = handleAutoClicker({});
+        return cleanup;
+    }, [handleAutoClicker]);
 
     useEffect(() => {
         dispatch({ type: "cleanClicks" });

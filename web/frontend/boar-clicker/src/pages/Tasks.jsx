@@ -11,14 +11,25 @@ import coinIcon from "../assets/svg/coin.svg";
 import TasksWrapper from "../features/Tasks/components/TasksWrapper";
 
 function Tasks() {
-    const { state } = useGameContext();
-    const { points } = state;
+    const {
+        state: { points },
+        handleAutoClicker,
+    } = useGameContext();
     const { convertToViewSystem } = useConvertSystem();
 
     const [isTaskMenuOpen, setIsTaskMenuOpen] = useState(false);
 
     const pointsRef = useRef(null);
     const isFirstRenderRef = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRenderRef.current) {
+            isFirstRenderRef.current = false;
+            return;
+        }
+        const cleanup = handleAutoClicker({});
+        return cleanup;
+    }, [handleAutoClicker]);
 
     useEffect(() => {
         isFirstRenderRef.current = false;
