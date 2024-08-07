@@ -5,18 +5,19 @@ import useGameContext from "../../../hooks/useGameContext";
 
 import energyDrink from "../../../assets/svg/energy-drink.svg";
 import energy from "../../../assets/svg/energy.svg";
+import toast from "react-hot-toast";
 
 const FreeEnergyRefill = forwardRef(function FreeEnergyRefill(
-    { booster },
+    { booster, dispatch },
     ref
 ) {
-    const { dispatch } = useGameContext();
+    const { dispatch: gameDispatch } = useGameContext();
 
     const {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
         baseEffect,
         scalingFactor,
         upgrades,
@@ -28,10 +29,36 @@ const FreeEnergyRefill = forwardRef(function FreeEnergyRefill(
         endTime,
     } = booster;
 
-    function handleClick() {
+    function handleActivate() {
+        toast.success("Energy refilled!", {
+            style: {
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+            },
+        });
         if (uses < maxUses) {
-            dispatch({ type: "restoreFullEnergy" });
+            // Implement the request to the server
+            gameDispatch({ type: "restoreFullEnergy" });
         }
+    }
+
+    const subtitle = `${maxUses - uses}/5 energy refills`;
+    const isFreeBooster = type.startsWith("free_");
+
+    function handleOpenBoosterWindow() {
+        dispatch({
+            type: "openBoosterWindow",
+            payload: {
+                booster: {
+                    ...booster,
+                    icon: energyDrink,
+                    subtitle: subtitle,
+                    subtitleIcon: energy,
+                    isFreeBooster: isFreeBooster,
+                },
+                onActivate: handleActivate,
+            },
+        });
     }
 
     return (
@@ -41,11 +68,12 @@ const FreeEnergyRefill = forwardRef(function FreeEnergyRefill(
                     ? "bg-dark-gray cursor-pointer bg-onyx"
                     : "pointer-events-none cursor-not-allowed bg-onyx/50"
             }
-            handleClick={handleClick}
+            handleClick={handleOpenBoosterWindow}
             icon={energyDrink}
             title={title}
-            subtitle={`${maxUses - uses}/5 energy refills`}
+            subtitle={subtitle}
             subtitleIcon={energy}
+            isFreeBooster={isFreeBooster}
         />
     );
 });

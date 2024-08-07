@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 import Booster from "./Booster";
 
 import useGameContext from "../../../hooks/useGameContext";
+import useConvertSystem from "../../../hooks/useConvertSystem";
 import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
 
 import mysteryGift from "../../../assets/svg/mystery-gift.svg";
@@ -17,7 +18,8 @@ const MysteryBox = forwardRef(function MysteryBox({ booster }, pointsRef) {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
+        currentLevel,
         baseEffect,
         scalingFactor,
         time,
@@ -29,9 +31,10 @@ const MysteryBox = forwardRef(function MysteryBox({ booster }, pointsRef) {
         lastUsed,
         endTime,
     } = booster;
+    const { convertToViewSystem } = useConvertSystem();
 
     function handleClick() {
-        if (level < levelRequirement) return;
+        if (level < level_required) return;
 
         let levelScaling = 1;
         let baseBoostTime = time * 1000;
@@ -52,8 +55,11 @@ const MysteryBox = forwardRef(function MysteryBox({ booster }, pointsRef) {
             handleClick={handleClick}
             icon={mysteryGift}
             title={title}
-            subtitle={`mystery box with a random reward`}
-            subtitleIcon={mysteryGift}
+            isFreeBooster={type.startsWith("free_")}
+            upgradePrice={convertToViewSystem({
+                labelValue: price,
+            })}
+            currentLevel={currentLevel}
         />
     );
 });

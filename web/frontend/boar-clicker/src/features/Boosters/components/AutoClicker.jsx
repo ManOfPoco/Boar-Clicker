@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 import Booster from "./Booster";
 
 import useGameContext from "../../../hooks/useGameContext";
+import useConvertSystem from "../../../hooks/useConvertSystem";
 import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
 
 import autoClicker from "../../../assets/svg/auto-clicker.svg";
@@ -17,21 +18,22 @@ const AutoClicker = forwardRef(function AutoClicker({ booster }, pointsRef) {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
+        currentLevel,
         baseEffect,
         scalingFactor,
         time,
         upgrades,
         price,
-        cooldown,
         uses,
         maxUses,
         lastUsed,
         endTime,
     } = booster;
+    const { convertToViewSystem } = useConvertSystem();
 
     function handleClick() {
-        if (level < levelRequirement) return;
+        if (level < level_required) return;
 
         let levelScaling = 1;
         let baseBoostTime = time * 1000;
@@ -64,8 +66,11 @@ const AutoClicker = forwardRef(function AutoClicker({ booster }, pointsRef) {
             handleClick={handleClick}
             icon={autoClicker}
             title={title}
-            subtitle={`auto clicker for 30 seconds`}
-            subtitleIcon={autoClicker}
+            isFreeBooster={type.startsWith("free_")}
+            upgradePrice={convertToViewSystem({
+                labelValue: price,
+            })}
+            currentLevel={currentLevel}
         />
     );
 });

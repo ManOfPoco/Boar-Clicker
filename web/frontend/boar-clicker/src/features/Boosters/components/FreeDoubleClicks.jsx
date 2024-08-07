@@ -6,21 +6,22 @@ import useGameContext from "../../../hooks/useGameContext";
 import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
 
 import doubleTap from "../../../assets/svg/double-tap.svg";
+import toast from "react-hot-toast";
 
 const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
-    { booster },
+    { booster, dispatch },
     pointsRef
 ) {
     const {
         state: { level },
-        dispatch,
+        dispatch: gameDispatch,
     } = useGameContext();
 
     const {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
         baseEffect,
         scalingFactor,
         time,
@@ -33,8 +34,11 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
         endTime,
     } = booster;
 
-    function handleClick() {
-        if (level < levelRequirement) return;
+    const subtitle = `x2 taps for 30 seconds`;
+    const isFreeBooster = type.startsWith("free_");
+
+    function handleActivate() {
+        if (level < level_required) return;
 
         let levelScaling = 1;
         let baseBoostTime = time * 1000;
@@ -46,7 +50,14 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
             baseBoostTime = time * upgrade.timeCoefficient;
         }
 
-        dispatch({
+        toast.success("Double clicks activated", {
+            style: {
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+            },
+        });
+
+        gameDispatch({
             type: "activateBooster",
             payload: {
                 booster: {
@@ -61,14 +72,31 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
         });
     }
 
+    function handleOpenBoosterWindow() {
+        dispatch({
+            type: "openBoosterWindow",
+            payload: {
+                booster: {
+                    ...booster,
+                    icon: doubleTap,
+                    subtitle: subtitle,
+                    subtitleIcon: doubleTap,
+                    isFreeBooster: isFreeBooster,
+                },
+                onActivate: handleActivate,
+            },
+        });
+    }
+
     return (
         <Booster
             className="cursor-pointer bg-onyx"
-            handleClick={handleClick}
+            handleClick={handleOpenBoosterWindow}
             icon={doubleTap}
             title={title}
-            subtitle={`x2 clicks for 30 seconds`}
+            subtitle={subtitle}
             subtitleIcon={doubleTap}
+            isFreeBooster={isFreeBooster}
         />
     );
 });

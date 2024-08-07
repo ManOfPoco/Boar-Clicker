@@ -43,7 +43,7 @@ function Upgrades() {
                         />
 
                         <span className="text-4xl text-white">
-                            {convertToViewSystem(points)}
+                            {convertToViewSystem({ labelValue: points })}
                         </span>
                     </div>
                 </div>

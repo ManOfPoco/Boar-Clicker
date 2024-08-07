@@ -11,7 +11,7 @@ export default {
                 "dark-grey": "#0d1117",
                 "rich-black": "#010409",
                 gray: "#8b949e",
-                "onyx": "#3C4046",
+                onyx: "#3C4046",
             },
             backgroundImage: {
                 "navigation-background":
@@ -31,7 +31,8 @@ export default {
                 glow: "0 -20px 20px rgba(243, 186, 47, 0.3), 0 20px 20px rgba(243, 186, 47, 0.3), 20px 0 20px rgba(243, 186, 47, 0.3), -20px 0 20px rgba(243, 186, 47, 0.3)",
             },
             maxHeight: {
-                "3/4": "75%",
+                "1/2": "50%",
+                "9/10": "90%",
             },
             keyframes: {
                 "fade-in": {

@@ -47,7 +47,7 @@ function Tasks() {
                             ref={pointsRef}
                         >
                             <span className="text-4xl text-primary">
-                                {convertToViewSystem(points)}
+                                {convertToViewSystem({ labelValue: points })}
                             </span>
 
                             <img

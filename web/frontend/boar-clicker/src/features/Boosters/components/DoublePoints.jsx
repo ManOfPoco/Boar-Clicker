@@ -5,6 +5,7 @@ import Booster from "./Booster";
 import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
 
 import useGameContext from "../../../hooks/useGameContext";
+import useConvertSystem from "../../../hooks/useConvertSystem";
 
 import doublePoint from "../../../assets/svg/double-point.svg";
 
@@ -18,7 +19,8 @@ const DoublePoints = forwardRef(function DoublePoints({ booster }, pointsRef) {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
+        currentLevel,
         baseEffect,
         scalingFactor,
         time,
@@ -30,9 +32,10 @@ const DoublePoints = forwardRef(function DoublePoints({ booster }, pointsRef) {
         lastUsed,
         endTime,
     } = booster;
+    const { convertToViewSystem } = useConvertSystem();
 
     function handleClick() {
-        if (level < levelRequirement) return;
+        if (level < level_required) return;
 
         let levelScaling = 1;
         let baseBoostTime = time * 1000;
@@ -65,8 +68,12 @@ const DoublePoints = forwardRef(function DoublePoints({ booster }, pointsRef) {
             handleClick={handleClick}
             icon={doublePoint}
             title={title}
-            subtitle={`x2 coins for 30 seconds`}
             subtitleIcon={doublePoint}
+            isFreeBooster={type.startsWith("free_")}
+            upgradePrice={convertToViewSystem({
+                labelValue: price,
+            })}
+            currentLevel={currentLevel}
         />
     );
 });

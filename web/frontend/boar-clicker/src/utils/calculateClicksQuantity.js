@@ -1,21 +1,30 @@
+import { getBoosterLevelEffect } from "./getBoosterLevelEffect";
+
 export function calculateClicksQuantity({ boosters }) {
     let clicks = 1;
 
     boosters.forEach((booster) => {
         if (booster.endTime > Date.now()) {
-            switch (booster.type) {
+            const { type, baseEffect, uses, scalingFactor } = booster;
+            const { effectScaling } = getBoosterLevelEffect({
+                booster,
+            });
+            const usesScaling = uses > 0 ? Math.round(uses * scalingFactor) : 1;
+
+            switch (type) {
                 case "double_clicks":
                 case "free_double_clicks":
-                    clicks *=
-                        booster.baseEffect *
-                        booster.usesScaling *
-                        booster.levelScaling;
+                    clicks *= Math.round(
+                        baseEffect * usesScaling * effectScaling
+                    );
                     break;
                 default:
                     break;
             }
         }
     });
+
+    console.log(clicks);
 
     return clicks;
 }

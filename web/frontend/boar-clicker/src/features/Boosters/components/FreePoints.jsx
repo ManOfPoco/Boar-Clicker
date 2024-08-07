@@ -8,10 +8,13 @@ import useGameContext from "../../../hooks/useGameContext";
 
 import coinIcon from "../../../assets/svg/coin.svg";
 
-const FreePoints = forwardRef(function FreePoints({ booster }, pointsRef) {
+const FreePoints = forwardRef(function FreePoints(
+    { booster, dispatch },
+    pointsRef
+) {
     const {
         state: { pointsPerClick, level },
-        dispatch,
+        dispatch: gameDispatch,
     } = useGameContext();
     const { convertToViewSystem } = useConvertSystem();
 
@@ -19,7 +22,7 @@ const FreePoints = forwardRef(function FreePoints({ booster }, pointsRef) {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
         baseEffect,
         scalingFactor,
         upgrades,
@@ -33,12 +36,12 @@ const FreePoints = forwardRef(function FreePoints({ booster }, pointsRef) {
 
     const pointsQuantity = baseEffect * scalingFactor * pointsPerClick * level;
 
-    function handleClick(e) {
+    function handleActivate(e) {
         createPointsAnimation({
             event: e,
             pointsRef,
             pointsQuantity,
-            dispatch,
+            dispatch: gameDispatch,
         });
     }
 
@@ -49,11 +52,12 @@ const FreePoints = forwardRef(function FreePoints({ booster }, pointsRef) {
                     ? "pointer-events-none cursor-not-allowed bg-onyx/50"
                     : "cursor-pointer bg-onyx"
             }
-            handleClick={handleClick}
+            handleClick={handleActivate}
             icon={coinIcon}
             title={title}
-            subtitle={`${convertToViewSystem(pointsQuantity)} coins`}
+            subtitle={`${convertToViewSystem({ labelValue: pointsQuantity })} coins`}
             subtitleIcon={coinIcon}
+            isFreeBooster={type.startsWith("free_")}
         />
     );
 });

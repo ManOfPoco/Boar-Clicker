@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 import Booster from "./Booster";
 
 import useGameContext from "../../../hooks/useGameContext";
+import useConvertSystem from "../../../hooks/useConvertSystem";
 import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
 
 import energy from "../../../assets/svg/energy.svg";
@@ -17,7 +18,8 @@ const DoubleEnergy = forwardRef(function DoubleEnergy({ booster }, pointsRef) {
         type,
         title,
         description,
-        levelRequirement,
+        level_required,
+        currentLevel,
         baseEffect,
         scalingFactor,
         time,
@@ -29,9 +31,10 @@ const DoubleEnergy = forwardRef(function DoubleEnergy({ booster }, pointsRef) {
         lastUsed,
         endTime,
     } = booster;
+    const { convertToViewSystem } = useConvertSystem();
 
     function handleClick() {
-        if (level < levelRequirement) return;
+        if (level < level_required) return;
 
         let levelScaling = 1;
         let baseBoostTime = time * 1000;
@@ -64,8 +67,11 @@ const DoubleEnergy = forwardRef(function DoubleEnergy({ booster }, pointsRef) {
             handleClick={handleClick}
             icon={energy}
             title={title}
-            subtitle={`x2 energy for 30 seconds`}
-            subtitleIcon={energy}
+            isFreeBooster={type.startsWith("free_")}
+            upgradePrice={convertToViewSystem({
+                labelValue: price,
+            })}
+            currentLevel={currentLevel}
         />
     );
 });

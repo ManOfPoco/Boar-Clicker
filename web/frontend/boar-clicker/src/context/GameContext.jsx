@@ -157,6 +157,22 @@ function reducer(state, action) {
                     (booster) => booster.type !== "double_energy"
                 ),
             };
+        case "upgradeBooster":
+            if (state.points < action.payload.upgradePrice) return state;
+
+            return {
+                ...state,
+                boosters: state.boosters.map((booster) => {
+                    if (booster.type === action.payload.type) {
+                        return {
+                            ...booster,
+                            currentLevel: booster.currentLevel + 1,
+                        };
+                    }
+                    return booster;
+                }),
+                points: state.points - action.payload.upgradePrice,
+            };
         default:
             return state;
     }

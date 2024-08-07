@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
 
 import FreePoints from "../features/Boosters/components/FreePoints";
 import FreeEnergyRefill from "../features/Boosters/components/FreeEnergyRefill";
@@ -15,19 +15,21 @@ import useConvertSystem from "../hooks/useConvertSystem";
 import useGameContext from "../hooks/useGameContext";
 
 import coinIcon from "../assets/svg/coin.svg";
+import BoosterWindow from "../features/Boosters/components/BoosterWindow";
 
 const BoostersList = [
     {
         type: "free_points",
         title: "Friend's Gift",
         description: "Get coins from your friend",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 100,
         scalingFactor: 10,
         time: 0,
         upgrades: [],
         price: 0,
+        priceCoefficient: 0,
         cooldown: 86400,
         uses: 0,
         maxUses: 1,
@@ -38,13 +40,14 @@ const BoostersList = [
         type: "free_energy_refill",
         title: "Energy Drink",
         description: "Get an energy refill",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 750,
         scalingFactor: 1,
         time: 0,
         upgrades: [],
         price: 0,
+        priceCoefficient: 0,
         cooldown: 86400,
         uses: 0,
         maxUses: 5,
@@ -55,13 +58,14 @@ const BoostersList = [
         type: "free_double_clicks",
         title: "Double Clicks",
         description: "Get double clicks for 30 seconds",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
         time: 30, // time in seconds for the booster to last
         upgrades: [],
         price: 0,
+        priceCoefficient: 0,
         cooldown: 86400,
         uses: 0,
         maxUses: 1,
@@ -72,13 +76,14 @@ const BoostersList = [
         type: "free_double_points",
         title: "Double Coins",
         description: "Get double coins for 30 seconds",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
         time: 30, // time in seconds for the booster to last
         upgrades: [],
         price: 0,
+        priceCoefficient: 0,
         cooldown: 86400,
         uses: 0,
         maxUses: 1,
@@ -88,39 +93,52 @@ const BoostersList = [
     {
         type: "double_clicks",
         title: "Double Clicks",
-        description: "Get double clicks for 30 seconds",
-        levelRequirement: 1,
+        description: "Double your taps for limited time",
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
         time: 30, // time in seconds for the booster to last
+        upgrade_type: "next", // closest or next (closest is the closest to the current level, next is the next level)
         upgrades: [
             {
                 level: 2,
+                level_required: 5,
                 effectCoefficient: 1.5,
-                priceCoefficient: 2,
+                priceCoefficient: 2.25,
                 timeCoefficient: 1.15,
             },
             {
-                level: 10,
+                level: 3,
+                level_required: 10,
                 effectCoefficient: 2,
-                priceCoefficient: 3,
+                priceCoefficient: 2.5,
                 timeCoefficient: 1.35,
             },
             {
-                level: 50,
-                effectCoefficient: 3,
-                priceCoefficient: 5,
-                timeCoefficient: 2,
+                level: 4,
+                level_required: 15,
+                effectCoefficient: 2.5,
+                priceCoefficient: 2.75,
+                timeCoefficient: 1.5,
             },
             {
-                level: 100,
-                effectCoefficient: 4,
-                priceCoefficient: 10,
-                timeCoefficient: 2.5,
+                level: 5,
+                level_required: 20,
+                effectCoefficient: 3,
+                priceCoefficient: 3,
+                timeCoefficient: 1.75,
+            },
+            {
+                level: 6,
+                level_required: 25,
+                effectCoefficient: 3.5,
+                priceCoefficient: 3.5,
+                timeCoefficient: 2,
             },
         ],
-        price: 100,
+        price: 2000,
+        priceCoefficient: 2,
         cooldown: 2000,
         uses: 0,
         maxUses: null,
@@ -131,7 +149,7 @@ const BoostersList = [
         type: "double_points",
         title: "Double Coins",
         description: "Get double coins for 30 seconds",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
@@ -159,7 +177,8 @@ const BoostersList = [
                 priceCoefficient: 2.5,
             },
         ],
-        price: 100,
+        price: 2000,
+        priceCoefficient: 1,
         cooldown: 1800,
         uses: 0,
         maxUses: null,
@@ -170,7 +189,7 @@ const BoostersList = [
         type: "double_energy",
         title: "Double Energy",
         description: "Get double energy for 30 seconds",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
@@ -201,7 +220,8 @@ const BoostersList = [
                 timeCoefficient: 2.5,
             },
         ],
-        price: 100,
+        price: 3000,
+        priceCoefficient: 1,
         cooldown: 1800,
         uses: 0,
         maxUses: null,
@@ -212,7 +232,7 @@ const BoostersList = [
         type: "auto_clicker",
         title: "Auto Clicker",
         description: "Get auto clicker for 30 seconds",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 1, // 1 click per second
         scalingFactor: 1.05, // Each use increases effect by 5%
@@ -243,7 +263,8 @@ const BoostersList = [
                 timeCoefficient: 2.5,
             },
         ],
-        price: 200,
+        price: 2000,
+        priceCoefficient: 1,
         cooldown: 2000,
         uses: 0,
         maxUses: null,
@@ -254,12 +275,13 @@ const BoostersList = [
         type: "mystery_box",
         title: "Mystery Box",
         description: "Get a mystery box. It can be anything 🕵️‍♂️",
-        levelRequirement: 1,
+        level_required: 1,
         currentLevel: 1,
         baseEffect: 1, // 1 box per use
         scalingFactor: 0,
         upgrades: [],
-        price: 500,
+        price: 5000,
+        priceCoefficient: 1,
         cooldown: 4000,
         uses: 0,
         maxUses: null,
@@ -267,6 +289,39 @@ const BoostersList = [
         endTime: null,
     },
 ];
+
+const initialState = {
+    isBoosterWindowOpen: false,
+    booster: null,
+    boosterEffects: null,
+    onActivate: null,
+    onUpgrade: null,
+};
+
+function reducer(state, action) {
+    switch (action.type) {
+        case "openBoosterWindow":
+            return {
+                ...state,
+                isBoosterWindowOpen: true,
+                booster: action.payload.booster,
+                boosterEffects: action.payload.boosterEffects,
+                onActivate: action.payload.onActivate,
+                onUpgrade: action.payload.onUpgrade,
+            };
+        case "closeBoosterWindow":
+            return {
+                ...state,
+                isBoosterWindowOpen: false,
+                booster: null,
+                boosterEffects: null,
+                onActivate: null,
+                onUpgrade: null,
+            };
+        default:
+            return state;
+    }
+}
 
 const getComponent = (type) => {
     switch (type) {
@@ -294,12 +349,14 @@ const getComponent = (type) => {
 };
 
 function Boosters() {
+    const [state, dispatch] = useReducer(reducer, initialState);
+    const { isBoosterWindowOpen, booster } = state;
     const {
         state: { points, clicks },
-        dispatch,
+        dispatch: gameDispatch,
         handleAutoClicker,
     } = useGameContext();
-    const { convertToViewSystem } = useConvertSystem();
+    const { convertToViewSystem } = useConvertSystem({});
 
     const pointsRef = useRef(null);
     const isFirstRenderRef = useRef(true);
@@ -314,8 +371,8 @@ function Boosters() {
     }, [handleAutoClicker]);
 
     useEffect(() => {
-        dispatch({ type: "cleanClicks" });
-    }, [dispatch]);
+        gameDispatch({ type: "cleanClicks" });
+    }, [gameDispatch]);
 
     return (
         <div className="relative flex justify-center overflow-hidden bg-rich-black">
@@ -334,7 +391,7 @@ function Boosters() {
                         />
 
                         <span className="text-4xl text-white">
-                            {convertToViewSystem(points)}
+                            {convertToViewSystem({ labelValue: points })}
                         </span>
                     </div>
                 </div>
@@ -349,6 +406,7 @@ function Boosters() {
                                 return (
                                     <Component
                                         booster={booster}
+                                        dispatch={dispatch}
                                         ref={pointsRef}
                                         key={index}
                                     />
@@ -367,6 +425,7 @@ function Boosters() {
                                 return (
                                     <Component
                                         booster={booster}
+                                        dispatch={dispatch}
                                         ref={pointsRef}
                                         key={index}
                                     />
@@ -376,7 +435,11 @@ function Boosters() {
                 </div>
             </div>
 
-            <PointsGainAnimation clicks={clicks} dispatch={dispatch} />
+            {isBoosterWindowOpen && (
+                <BoosterWindow state={state} dispatch={dispatch} />
+            )}
+
+            <PointsGainAnimation clicks={clicks} dispatch={gameDispatch} />
         </div>
     );
 }
