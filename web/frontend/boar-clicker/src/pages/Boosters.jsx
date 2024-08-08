@@ -99,7 +99,6 @@ const BoostersList = [
         baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
         time: 30, // time in seconds for the booster to last
-        upgrade_type: "next", // closest or next (closest is the closest to the current level, next is the next level)
         upgrades: [
             {
                 level: 2,
@@ -157,29 +156,43 @@ const BoostersList = [
         upgrades: [
             {
                 level: 2,
+                level_required: 5,
                 effectCoefficient: 1.5,
-                priceCoefficient: 1.25,
+                priceCoefficient: 2.25,
                 timeCoefficient: 1.15,
             },
             {
-                level: 10,
-                effectCoefficient: 1.4,
-                priceCoefficient: 1.5,
-            },
-            {
-                level: 50,
-                effectCoefficient: 1.3,
-                priceCoefficient: 2,
-            },
-            {
-                level: 100,
-                effectCoefficient: 1.2,
+                level: 3,
+                level_required: 10,
+                effectCoefficient: 2,
                 priceCoefficient: 2.5,
+                timeCoefficient: 1.35,
+            },
+            {
+                level: 4,
+                level_required: 15,
+                effectCoefficient: 2.5,
+                priceCoefficient: 2.75,
+                timeCoefficient: 1.5,
+            },
+            {
+                level: 5,
+                level_required: 20,
+                effectCoefficient: 3,
+                priceCoefficient: 3,
+                timeCoefficient: 1.75,
+            },
+            {
+                level: 6,
+                level_required: 25,
+                effectCoefficient: 3.5,
+                priceCoefficient: 3.5,
+                timeCoefficient: 2,
             },
         ],
         price: 2000,
-        priceCoefficient: 1,
-        cooldown: 1800,
+        priceCoefficient: 2,
+        cooldown: 2000,
         uses: 0,
         maxUses: null,
         lastUsed: null,
@@ -197,32 +210,43 @@ const BoostersList = [
         upgrades: [
             {
                 level: 2,
+                level_required: 5,
                 effectCoefficient: 1.5,
-                priceCoefficient: 1.25,
+                priceCoefficient: 2.25,
                 timeCoefficient: 1.15,
             },
             {
-                level: 10,
-                effectCoefficient: 1.4,
-                priceCoefficient: 1.75,
+                level: 3,
+                level_required: 10,
+                effectCoefficient: 2,
+                priceCoefficient: 2.5,
+                timeCoefficient: 1.35,
+            },
+            {
+                level: 4,
+                level_required: 15,
+                effectCoefficient: 2.5,
+                priceCoefficient: 2.75,
                 timeCoefficient: 1.5,
             },
             {
-                level: 50,
-                effectCoefficient: 1.3,
+                level: 5,
+                level_required: 20,
+                effectCoefficient: 3,
                 priceCoefficient: 3,
-                timeCoefficient: 2,
+                timeCoefficient: 1.75,
             },
             {
-                level: 100,
-                effectCoefficient: 1.2,
-                priceCoefficient: 4,
-                timeCoefficient: 2.5,
+                level: 6,
+                level_required: 25,
+                effectCoefficient: 3.5,
+                priceCoefficient: 3.5,
+                timeCoefficient: 2,
             },
         ],
-        price: 3000,
-        priceCoefficient: 1,
-        cooldown: 1800,
+        price: 2000,
+        priceCoefficient: 2,
+        cooldown: 2000,
         uses: 0,
         maxUses: null,
         lastUsed: null,
@@ -234,37 +258,48 @@ const BoostersList = [
         description: "Get auto clicker for 30 seconds",
         level_required: 1,
         currentLevel: 1,
-        baseEffect: 1, // 1 click per second
+        baseEffect: 2,
         scalingFactor: 1.05, // Each use increases effect by 5%
         time: 30, // time in seconds for the booster to last
         upgrades: [
             {
                 level: 2,
-                effectCoefficient: 2,
-                priceCoefficient: 2,
+                level_required: 5,
+                effectCoefficient: 1.5,
+                priceCoefficient: 2.25,
                 timeCoefficient: 1.15,
             },
             {
-                level: 10,
-                effectCoefficient: 3,
-                priceCoefficient: 4,
+                level: 3,
+                level_required: 10,
+                effectCoefficient: 2,
+                priceCoefficient: 2.5,
+                timeCoefficient: 1.35,
+            },
+            {
+                level: 4,
+                level_required: 15,
+                effectCoefficient: 2.5,
+                priceCoefficient: 2.75,
                 timeCoefficient: 1.5,
             },
             {
-                level: 50,
-                effectCoefficient: 5,
-                priceCoefficient: 6,
-                timeCoefficient: 2,
+                level: 5,
+                level_required: 20,
+                effectCoefficient: 3,
+                priceCoefficient: 3,
+                timeCoefficient: 1.75,
             },
             {
-                level: 100,
-                effectCoefficient: 10,
-                priceCoefficient: 15,
-                timeCoefficient: 2.5,
+                level: 6,
+                level_required: 25,
+                effectCoefficient: 3.5,
+                priceCoefficient: 3.5,
+                timeCoefficient: 2,
             },
         ],
         price: 2000,
-        priceCoefficient: 1,
+        priceCoefficient: 2,
         cooldown: 2000,
         uses: 0,
         maxUses: null,
@@ -277,12 +312,13 @@ const BoostersList = [
         description: "Get a mystery box. It can be anything 🕵️‍♂️",
         level_required: 1,
         currentLevel: 1,
-        baseEffect: 1, // 1 box per use
-        scalingFactor: 0,
+        baseEffect: 2,
+        scalingFactor: 1.05, // Each use increases effect by 5%
+        time: 30, // time in seconds for the booster to last
         upgrades: [],
-        price: 5000,
-        priceCoefficient: 1,
-        cooldown: 4000,
+        price: 2000,
+        priceCoefficient: 2,
+        cooldown: 2000,
         uses: 0,
         maxUses: null,
         lastUsed: null,
@@ -350,7 +386,7 @@ const getComponent = (type) => {
 
 function Boosters() {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const { isBoosterWindowOpen, booster } = state;
+    const { isBoosterWindowOpen } = state;
     const {
         state: { points, clicks },
         dispatch: gameDispatch,

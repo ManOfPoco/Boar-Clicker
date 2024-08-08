@@ -19,24 +19,22 @@ const FreePoints = forwardRef(function FreePoints(
     const { convertToViewSystem } = useConvertSystem();
 
     const {
-        type,
         title,
-        description,
-        level_required,
         baseEffect,
+        level_required,
         scalingFactor,
-        upgrades,
-        price,
-        cooldown,
         uses,
         maxUses,
-        lastUsed,
         endTime,
     } = booster;
 
     const pointsQuantity = baseEffect * scalingFactor * pointsPerClick * level;
 
     function handleActivate(e) {
+        if (level < level_required) return;
+        if ((endTime ?? 0) > Date.now()) return;
+        if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
+
         createPointsAnimation({
             event: e,
             pointsRef,
@@ -57,7 +55,7 @@ const FreePoints = forwardRef(function FreePoints(
             title={title}
             subtitle={`${convertToViewSystem({ labelValue: pointsQuantity })} coins`}
             subtitleIcon={coinIcon}
-            isFreeBooster={type.startsWith("free_")}
+            isFreeBooster={true}
         />
     );
 });

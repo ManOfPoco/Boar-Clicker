@@ -52,7 +52,6 @@ function Home() {
 
         const points = calculatePointsPerClick({
             pointsPerClick,
-            level,
             boosters,
         });
         let clicksQuantity = calculateClicksQuantity({
@@ -75,12 +74,12 @@ function Home() {
                     type: "addClick",
                     payload: {
                         click: {
-                            id: Date.now(),
                             points: points,
                             x: clickX,
                             y: clickY,
                             translateX,
                             translateY,
+                            type: "click",
                         },
                         consumeEnergy: i % 2 === 0,
                     },

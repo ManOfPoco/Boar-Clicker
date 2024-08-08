@@ -1,23 +1,25 @@
 import { forwardRef } from "react";
+import toast from "react-hot-toast";
 
 import Booster from "./Booster";
 
 import useGameContext from "../../../hooks/useGameContext";
-import useConvertSystem from "../../../hooks/useConvertSystem";
-import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
+import { getUpgradeScaling } from "../../../utils/getUpgradeScaling";
 
 import autoClicker from "../../../assets/svg/auto-clicker.svg";
 
-const AutoClicker = forwardRef(function AutoClicker({ booster }, pointsRef) {
+const AutoClicker = forwardRef(function AutoClicker(
+    { booster, dispatch },
+    pointsRef
+) {
     const {
         state: { level },
-        dispatch,
+        dispatch: gameDispatch,
     } = useGameContext();
 
     const {
         type,
         title,
-        description,
         level_required,
         currentLevel,
         baseEffect,
@@ -25,37 +27,115 @@ const AutoClicker = forwardRef(function AutoClicker({ booster }, pointsRef) {
         time,
         upgrades,
         price,
+        priceCoefficient,
         uses,
         maxUses,
-        lastUsed,
         endTime,
     } = booster;
-    const { convertToViewSystem } = useConvertSystem();
 
-    function handleClick() {
-        if (level < level_required) return;
+    let isMaxLevel =
+        upgrades.length > 0
+            ? upgrades[upgrades.length - 1].level === currentLevel
+            : true;
 
-        let levelScaling = 1;
-        let baseBoostTime = time * 1000;
+    const upgrade =
+        upgrades.length > 0
+            ? (upgrades.find((upgrade) => upgrade.level === currentLevel) ??
+              null)
+            : null;
+    const nextUpgrade =
+        upgrades.length > 0
+            ? (upgrades.find((upgrade) => upgrade.level > currentLevel) ?? null)
+            : null;
 
-        const upgrade = getClosestUpgrade({ upgrades, level });
+    const { effectScaling, upgradePriceCoefficient, baseBoostTime } =
+        getUpgradeScaling({
+            time,
+            priceCoefficient,
+            upgrade,
+        });
 
-        if (upgrade) {
-            levelScaling = upgrade.effectCoefficient;
-            baseBoostTime = time * upgrade.timeCoefficient;
-        }
+    const { effectScaling: nextEffectScaling, baseBoostTime: nextBaseBoost } =
+        getUpgradeScaling({
+            time,
+            priceCoefficient,
+            upgrade: nextUpgrade,
+        });
+
+    const upgradePrice = price * upgradePriceCoefficient;
+    const usesScaling = uses > 0 ? Math.round(uses * scalingFactor) : 1;
+
+    const currentEffect = Math.round(baseEffect * usesScaling * effectScaling);
+    const nextUpgradeEffect = Math.round(
+        baseEffect * usesScaling * nextEffectScaling
+    );
+
+    const currentEffectDescription = `${currentEffect} taps per second`;
+    const nextUpgradeEffectDescription = `${nextUpgradeEffect} taps per second`;
+
+    function handleUpgrade() {
+        if (level < level_required || level < upgrade.level_required) return;
+        if ((endTime ?? 0) > Date.now()) return;
+        if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
 
         dispatch({
-            type: "activateBooster",
+            type: "upgradeBooster",
             payload: {
                 booster: {
                     type,
-                    baseEffect,
-                    usesScaling: uses > 0 ? uses * scalingFactor : 1,
-                    levelScaling: levelScaling,
-                    lastUsed: Date.now(),
-                    endTime: Date.now() + baseBoostTime,
+                    currentLevel: currentLevel,
                 },
+                upgradePrice,
+            },
+        });
+    }
+
+    function handleActivate() {
+        if (level < level_required) return;
+        if ((endTime ?? 0) > Date.now()) return;
+        if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
+
+        toast.success("Double energy activated", {
+            style: {
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+            },
+        });
+
+        gameDispatch({
+            type: "activateBooster",
+            payload: {
+                booster: {
+                    ...booster,
+                    lastUsed: Date.now(),
+                    endTime: Date.now() + baseBoostTime * 1000,
+                    uses: (uses ?? 0) + 1,
+                },
+            },
+        });
+    }
+
+    function handleOpenBoosterWindow() {
+        dispatch({
+            type: "openBoosterWindow",
+            payload: {
+                booster: {
+                    ...booster,
+                    isFreeBooster: false,
+                    icon: autoClicker,
+                    upgrade: upgrade,
+                    nextUpgrade: nextUpgrade,
+                    upgradePrice: upgradePrice,
+                    isMaxLevel: isMaxLevel,
+                },
+                boosterEffects: {
+                    currentEffectDescription: currentEffectDescription,
+                    nextUpgradeEffectDescription: nextUpgradeEffectDescription,
+                    currentTime: baseBoostTime,
+                    nextUpgradeTime: nextBaseBoost,
+                },
+                onActivate: handleActivate,
+                onUpgrade: handleUpgrade,
             },
         });
     }
@@ -63,13 +143,12 @@ const AutoClicker = forwardRef(function AutoClicker({ booster }, pointsRef) {
     return (
         <Booster
             className="cursor-pointer bg-onyx"
-            handleClick={handleClick}
+            handleClick={handleOpenBoosterWindow}
             icon={autoClicker}
             title={title}
-            isFreeBooster={type.startsWith("free_")}
-            upgradePrice={convertToViewSystem({
-                labelValue: price,
-            })}
+            isMaxLevel={isMaxLevel}
+            isFreeBooster={false}
+            upgradePrice={upgradePrice}
             currentLevel={currentLevel}
         />
     );

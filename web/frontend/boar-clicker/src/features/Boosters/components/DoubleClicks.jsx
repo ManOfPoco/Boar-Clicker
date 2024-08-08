@@ -25,22 +25,28 @@ const DoubleClicks = forwardRef(function DoubleClicks(
         baseEffect,
         scalingFactor,
         time,
-        upgrade_type,
         upgrades,
         price,
         priceCoefficient,
-        cooldown,
         uses,
         maxUses,
-        lastUsed,
+        endTime,
     } = booster;
 
-    let isMaxLevel = upgrades[upgrades.length - 1].level === currentLevel;
+    let isMaxLevel =
+        upgrades.length > 0
+            ? upgrades[upgrades.length - 1].level === currentLevel
+            : true;
 
-    const upgrade = upgrades.find((upgrade) => upgrade.level === currentLevel);
-    const nextUpgrade = upgrades.find(
-        (upgrade) => upgrade.level > currentLevel
-    );
+    const upgrade =
+        upgrades.length > 0
+            ? (upgrades.find((upgrade) => upgrade.level === currentLevel) ??
+              null)
+            : null;
+    const nextUpgrade =
+        upgrades.length > 0
+            ? (upgrades.find((upgrade) => upgrade.level > currentLevel) ?? null)
+            : null;
 
     const { effectScaling, upgradePriceCoefficient, baseBoostTime } =
         getUpgradeScaling({
@@ -67,9 +73,26 @@ const DoubleClicks = forwardRef(function DoubleClicks(
     const currentEffectDescription = `${currentEffect} taps per tap`;
     const nextUpgradeEffectDescription = `${nextUpgradeEffect} taps per tap`;
 
+    function handleUpgrade() {
+        if (level < level_required || level < upgrade.level_required) return;
+        if ((endTime ?? 0) > Date.now()) return;
+        if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
+
+        gameDispatch({
+            type: "upgradeBooster",
+            payload: {
+                booster: {
+                    type,
+                    currentLevel: currentLevel,
+                },
+                upgradePrice,
+            },
+        });
+    }
+
     function handleActivate() {
         if (level < level_required) return;
-        if ((lastUsed ?? 0) + cooldown * 1000 > Date.now()) return;
+        if ((endTime ?? 0) > Date.now()) return;
         if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
 
         toast.success("Double clicks activated", {
@@ -85,26 +108,9 @@ const DoubleClicks = forwardRef(function DoubleClicks(
                 booster: {
                     ...booster,
                     lastUsed: Date.now(),
-                    endTime: Date.now() + baseBoostTime,
+                    endTime: Date.now() + baseBoostTime * 1000,
                     uses: (uses ?? 0) + 1,
                 },
-            },
-        });
-    }
-
-    function handleUpgrade() {
-        if (level < level_required) return;
-        if (points < upgradePrice) return;
-        if (isMaxLevel) return;
-
-        gameDispatch({
-            type: "upgradeBooster",
-            payload: {
-                booster: {
-                    type,
-                    currentLevel: currentLevel,
-                },
-                upgradePrice,
             },
         });
     }
@@ -115,10 +121,8 @@ const DoubleClicks = forwardRef(function DoubleClicks(
             payload: {
                 booster: {
                     ...booster,
-                    icon: doubleTap,
-                    subtitle: null,
-                    subtitleIcon: null,
                     isFreeBooster: false,
+                    icon: doubleTap,
                     upgrade: upgrade,
                     nextUpgrade: nextUpgrade,
                     upgradePrice: upgradePrice,
@@ -127,7 +131,7 @@ const DoubleClicks = forwardRef(function DoubleClicks(
                 boosterEffects: {
                     currentEffectDescription: currentEffectDescription,
                     nextUpgradeEffectDescription: nextUpgradeEffectDescription,
-                    currentTime: time,
+                    currentTime: baseBoostTime,
                     nextUpgradeTime: nextBaseBoost,
                 },
                 onActivate: handleActivate,
@@ -142,6 +146,7 @@ const DoubleClicks = forwardRef(function DoubleClicks(
             handleClick={handleOpenBoosterWindow}
             icon={doubleTap}
             title={title}
+            isMaxLevel={isMaxLevel}
             isFreeBooster={false}
             upgradePrice={upgradePrice}
             currentLevel={currentLevel}

@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import useConvertSystem from "../../../hooks/useConvertSystem";
 import useGameContext from "../../../hooks/useGameContext";
 import { getHumanTime } from "../../../utils/getHumanTime";
+import { validateBoosterWindowData } from "../utils/validateBoosterWindowData.js";
 
 import closeCircle from "../../../assets/svg/close-circle.svg";
 import coinIcon from "../../../assets/svg/coin.svg";
@@ -13,34 +14,42 @@ function BoosterWindow({ state, dispatch }) {
     } = useGameContext();
     const {
         isBoosterWindowOpen,
-        booster: {
-            title,
-            description,
-            level_required,
-            currentLevel,
-            cooldown,
-            uses,
-            maxUses,
-            lastUsed,
-            endTime,
-            icon,
-            subtitle,
-            subtitleIcon,
-            isFreeBooster,
-            upgradePrice,
-            upgrade,
-            nextUpgrade,
-            isMaxLevel,
-        },
-        boosterEffects: {
-            currentEffectDescription,
-            nextUpgradeEffectDescription,
-            currentTime,
-            nextUpgradeTime,
-        } = {},
+        booster = {},
+        boosterEffects = {},
         onActivate,
         onUpgrade,
     } = state;
+
+    const { isValid, missingField } = validateBoosterWindowData(
+        booster,
+        boosterEffects
+    );
+
+    const {
+        title,
+        description,
+        level_required,
+        currentLevel,
+        cooldown,
+        uses,
+        maxUses,
+        endTime,
+        icon,
+        subtitle,
+        subtitleIcon,
+        isFreeBooster,
+        upgradePrice,
+        upgrade,
+        nextUpgrade,
+        isMaxLevel,
+    } = booster;
+
+    const {
+        currentEffectDescription,
+        nextUpgradeEffectDescription,
+        currentTime,
+        nextUpgradeTime,
+    } = boosterEffects;
 
     const { convertToViewSystem } = useConvertSystem();
     const boosterWindowRef = useRef(null);
@@ -51,7 +60,7 @@ function BoosterWindow({ state, dispatch }) {
         points >= upgradePrice;
     const isActivatePossible =
         level >= level_required &&
-        (lastUsed ?? 0) + cooldown * 1000 <= Date.now() &&
+        endTime <= Date.now() &&
         (uses ?? 0) < (maxUses ?? Infinity);
 
     useEffect(() => {
@@ -71,6 +80,14 @@ function BoosterWindow({ state, dispatch }) {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [dispatch]);
+
+    if (!isValid) {
+        return (
+            <div className="absolute inset-0 z-50 flex h-dvh items-center justify-center bg-black text-white">
+                Missing field: {missingField}
+            </div>
+        );
+    }
 
     return (
         <>
@@ -132,9 +149,13 @@ function BoosterWindow({ state, dispatch }) {
                                         <span>{currentLevel} lvl</span>
                                         <span>{currentEffectDescription}</span>
                                         <span>{currentTime} seconds</span>
-                                        <span>
-                                            Required level: {level_required}
-                                        </span>
+                                        {!isMaxLevel && (
+                                            <span>
+                                                Required level:{" "}
+                                                {upgrade?.level_required ||
+                                                    level_required}
+                                            </span>
+                                        )}
                                         <span>Free</span>
                                     </div>
                                     {isActivatePossible ? (
@@ -155,28 +176,49 @@ function BoosterWindow({ state, dispatch }) {
                                 </div>
                                 <div className="flex w-1/2 flex-none flex-col justify-between gap-5">
                                     <div className="flex flex-col items-center gap-2 text-lg">
-                                        <span>{currentLevel + 1} lvl</span>
                                         <span>
-                                            {nextUpgradeEffectDescription}
+                                            {isMaxLevel
+                                                ? "Max level"
+                                                : `${currentLevel + 1} lvl`}
                                         </span>
-                                        <span>{nextUpgradeTime} seconds</span>
+
                                         <span>
-                                            Required level:{" "}
-                                            {nextUpgrade.level_required}
+                                            {isMaxLevel
+                                                ? "Max level"
+                                                : nextUpgradeEffectDescription}
                                         </span>
-                                        <div className="flex items-center gap-1">
-                                            <img
-                                                src={coinIcon}
-                                                alt="coin-icon"
-                                                className="h-5 w-5"
-                                                draggable="false"
-                                            />
+
+                                        <span>
+                                            {isMaxLevel
+                                                ? "Max level"
+                                                : `${nextUpgradeTime} seconds`}
+                                        </span>
+
+                                        {!isMaxLevel && (
                                             <span>
-                                                {convertToViewSystem({
-                                                    labelValue: upgradePrice,
-                                                })}
+                                                Required level:{" "}
+                                                {nextUpgrade.level_required}
                                             </span>
-                                        </div>
+                                        )}
+
+                                        {isMaxLevel ? (
+                                            <span>Max level</span>
+                                        ) : (
+                                            <div className="flex items-center gap-1">
+                                                <img
+                                                    src={coinIcon}
+                                                    alt="coin-icon"
+                                                    className="h-5 w-5"
+                                                    draggable="false"
+                                                />
+                                                <span>
+                                                    {convertToViewSystem({
+                                                        labelValue:
+                                                            upgradePrice,
+                                                    })}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                     {isUpgradePossible ? (
                                         <button
@@ -190,7 +232,9 @@ function BoosterWindow({ state, dispatch }) {
                                             className="w-full cursor-not-allowed rounded-lg bg-blue-500/50 py-2 text-base font-bold"
                                             disabled
                                         >
-                                            Upgrade
+                                            {isMaxLevel
+                                                ? "Max level"
+                                                : "Upgrade"}
                                         </button>
                                     )}
                                 </div>

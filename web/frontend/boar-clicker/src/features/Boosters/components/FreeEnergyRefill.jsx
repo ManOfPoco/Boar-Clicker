@@ -1,49 +1,39 @@
 import { forwardRef } from "react";
+import toast from "react-hot-toast";
 
 import Booster from "./Booster";
 import useGameContext from "../../../hooks/useGameContext";
 
 import energyDrink from "../../../assets/svg/energy-drink.svg";
 import energy from "../../../assets/svg/energy.svg";
-import toast from "react-hot-toast";
 
 const FreeEnergyRefill = forwardRef(function FreeEnergyRefill(
     { booster, dispatch },
     ref
 ) {
-    const { dispatch: gameDispatch } = useGameContext();
-
     const {
-        type,
-        title,
-        description,
-        level_required,
-        baseEffect,
-        scalingFactor,
-        upgrades,
-        price,
-        cooldown,
-        uses,
-        maxUses,
-        lastUsed,
-        endTime,
-    } = booster;
+        state: { level },
+        dispatch: gameDispatch,
+    } = useGameContext();
+
+    const { title, level_required, uses, maxUses, endTime } = booster;
 
     function handleActivate() {
+        if (level < level_required) return;
+        if ((endTime ?? 0) > Date.now()) return;
+        if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
+
         toast.success("Energy refilled!", {
             style: {
                 backgroundColor: "#1e1e1e",
                 color: "#fff",
             },
         });
-        if (uses < maxUses) {
-            // Implement the request to the server
-            gameDispatch({ type: "restoreFullEnergy" });
-        }
+        // Implement the request to the server
+        gameDispatch({ type: "restoreFullEnergy" });
     }
 
     const subtitle = `${maxUses - uses}/5 energy refills`;
-    const isFreeBooster = type.startsWith("free_");
 
     function handleOpenBoosterWindow() {
         dispatch({
@@ -54,7 +44,7 @@ const FreeEnergyRefill = forwardRef(function FreeEnergyRefill(
                     icon: energyDrink,
                     subtitle: subtitle,
                     subtitleIcon: energy,
-                    isFreeBooster: isFreeBooster,
+                    isFreeBooster: true,
                 },
                 onActivate: handleActivate,
             },
@@ -73,7 +63,7 @@ const FreeEnergyRefill = forwardRef(function FreeEnergyRefill(
             title={title}
             subtitle={subtitle}
             subtitleIcon={energy}
-            isFreeBooster={isFreeBooster}
+            isFreeBooster={true}
         />
     );
 });

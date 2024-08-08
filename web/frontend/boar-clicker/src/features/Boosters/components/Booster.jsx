@@ -11,6 +11,7 @@ function Booster({
     subtitle,
     subtitleIcon,
     isFreeBooster,
+    isMaxLevel,
     currentLevel,
     upgradePrice,
 }) {
@@ -51,9 +52,11 @@ function Booster({
                                     draggable="false"
                                 />
                                 <h5>
-                                    {convertToViewSystem({
-                                        labelValue: upgradePrice,
-                                    })}
+                                    {isMaxLevel
+                                        ? "Free"
+                                        : convertToViewSystem({
+                                              labelValue: upgradePrice,
+                                          })}
                                 </h5>
                             </div>
                             <div className="flex items-center gap-2 text-sm">

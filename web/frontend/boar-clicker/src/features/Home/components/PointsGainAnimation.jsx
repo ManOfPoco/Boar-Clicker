@@ -13,7 +13,7 @@ function PointsGainAnimation({ clicks, dispatch }) {
         <>
             {clicks.map((click) => (
                 <div
-                    key={click.id}
+                    key={`${click.id}-${click.type}`}
                     className="pointer-events-none absolute overflow-hidden text-4xl font-bold text-white opacity-0"
                     style={{
                         top: `${click.y}px`,

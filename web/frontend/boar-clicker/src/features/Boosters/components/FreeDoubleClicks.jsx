@@ -1,12 +1,10 @@
 import { forwardRef } from "react";
+import toast from "react-hot-toast";
 
 import Booster from "./Booster";
-
 import useGameContext from "../../../hooks/useGameContext";
-import { getClosestUpgrade } from "../../../utils/getClosestUpgrade";
 
 import doubleTap from "../../../assets/svg/double-tap.svg";
-import toast from "react-hot-toast";
 
 const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
     { booster, dispatch },
@@ -17,38 +15,14 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
         dispatch: gameDispatch,
     } = useGameContext();
 
-    const {
-        type,
-        title,
-        description,
-        level_required,
-        baseEffect,
-        scalingFactor,
-        time,
-        upgrades,
-        price,
-        cooldown,
-        uses,
-        maxUses,
-        lastUsed,
-        endTime,
-    } = booster;
+    const { title, level_required, time, uses, maxUses, endTime } = booster;
 
     const subtitle = `x2 taps for 30 seconds`;
-    const isFreeBooster = type.startsWith("free_");
 
     function handleActivate() {
         if (level < level_required) return;
-
-        let levelScaling = 1;
-        let baseBoostTime = time * 1000;
-
-        const upgrade = getClosestUpgrade({ upgrades, level });
-
-        if (upgrade) {
-            levelScaling = upgrade.effectCoefficient;
-            baseBoostTime = time * upgrade.timeCoefficient;
-        }
+        if ((endTime ?? 0) > Date.now()) return;
+        if ((uses ?? 0) >= (maxUses ?? Infinity)) return;
 
         toast.success("Double clicks activated", {
             style: {
@@ -61,12 +35,10 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
             type: "activateBooster",
             payload: {
                 booster: {
-                    type,
-                    baseEffect,
-                    usesScaling: uses > 0 ? uses * scalingFactor : 1,
-                    levelScaling: levelScaling,
+                    ...booster,
                     lastUsed: Date.now(),
-                    endTime: Date.now() + baseBoostTime,
+                    endTime: Date.now() + time * 1000,
+                    uses: (uses ?? 0) + 1,
                 },
             },
         });
@@ -81,7 +53,7 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
                     icon: doubleTap,
                     subtitle: subtitle,
                     subtitleIcon: doubleTap,
-                    isFreeBooster: isFreeBooster,
+                    isFreeBooster: true,
                 },
                 onActivate: handleActivate,
             },
@@ -96,7 +68,7 @@ const FreeDoubleClicks = forwardRef(function FreeDoubleClicks(
             title={title}
             subtitle={subtitle}
             subtitleIcon={doubleTap}
-            isFreeBooster={isFreeBooster}
+            isFreeBooster={true}
         />
     );
 });

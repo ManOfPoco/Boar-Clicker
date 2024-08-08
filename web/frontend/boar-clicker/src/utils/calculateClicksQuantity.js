@@ -24,7 +24,5 @@ export function calculateClicksQuantity({ boosters }) {
         }
     });
 
-    console.log(clicks);
-
     return clicks;
 }

@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { createContext, useCallback, useEffect, useReducer } from "react";
 
 import { calculatePointsPerClick } from "../utils/calculatePointsPerClick.js";
@@ -44,12 +45,13 @@ function reducer(state, action) {
                 clicks: [
                     ...state.clicks,
                     {
-                        id: Date.now(),
+                        id: uuidv4(),
                         points: action.payload.click.points,
                         x: action.payload.click.x,
                         y: action.payload.click.y,
                         translateX: action.payload.click.translateX,
                         translateY: action.payload.click.translateY,
+                        type: action.payload.click.type,
                     },
                 ],
             };
@@ -239,12 +241,12 @@ function GameProvider({ children }) {
                                 type: "addClick",
                                 payload: {
                                     click: {
-                                        id: Date.now(),
                                         points: points,
                                         x: clickX,
                                         y: clickY,
                                         translateX: translateX,
                                         translateY: translateY,
+                                        type: "auto_clicker",
                                     },
                                     consumeEnergy: false,
                                 },

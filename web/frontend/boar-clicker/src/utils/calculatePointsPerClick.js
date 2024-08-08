@@ -1,6 +1,6 @@
 import { getBoosterLevelEffect } from "./getBoosterLevelEffect";
 
-export function calculatePointsPerClick({ pointsPerClick, level, boosters }) {
+export function calculatePointsPerClick({ pointsPerClick, boosters }) {
     let pointsPerClickMultiplier = 1;
     let pointsPerClickBoost = 0;
 

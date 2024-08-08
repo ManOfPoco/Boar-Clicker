@@ -1,6 +1,6 @@
 export function getUpgradeScaling({ time, priceCoefficient, upgrade }) {
     let effectScaling = 1;
-    let baseBoostTime = time * 1000;
+    let baseBoostTime = time;
     let upgradePriceCoefficient = priceCoefficient;
 
     if (upgrade) {
